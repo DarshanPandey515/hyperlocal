@@ -1,4 +1,8 @@
 import React from 'react'
+<<<<<<< HEAD
+=======
+import { Github } from 'lucide-react'
+>>>>>>> temp-fix
 
 export default function Footer() {
     return (
@@ -13,6 +17,7 @@ export default function Footer() {
                     </div>
 
                     <div className="md:ml-auto">
+<<<<<<< HEAD
                         <h4 className="font-bold text-black mb-4">Quick Links</h4>
                         <div className="space-y-2">
                             {['Features', 'Pricing', 'Contact', 'Privacy Policy'].map((link) => (
@@ -20,6 +25,15 @@ export default function Footer() {
                                     {link}
                                 </a>
                             ))}
+=======
+                        <div className="space-y-2">
+                            <h4 className="font-bold text-black mb-4">
+                                <a href="https://github.com/DarshanPandey515/hyperlocal" target='_blank'>
+                                    <Github />
+                                </a>
+                            </h4>
+
+>>>>>>> temp-fix
                         </div>
                     </div>
                 </div>

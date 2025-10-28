@@ -4,4 +4,8 @@
 
 html {
     scrollbar-gutter: stable;
+<<<<<<< HEAD
+=======
+    scroll-behavior: smooth;
+>>>>>>> temp-fix
 }

@@ -21,7 +21,11 @@ export default function Header() {
                 <Link to={"/"} className="text-2xl font-bold text-black">Hyperlocal</Link>
                 <div className="hidden md:flex items-center space-x-8">
                     {['How it works?', 'Community', 'Pricing'].map((item) => (
+<<<<<<< HEAD
                         <a key={item} href="#" className="text-black/80 hover:text-black transition-colors">
+=======
+                        <a key={item} href={`#${item}`} className="text-black/80 hover:text-black transition-colors">
+>>>>>>> temp-fix
                             {item}
                         </a>
                     ))}
@@ -38,9 +42,17 @@ export default function Header() {
                             Dashboard
                         </Link>
                     ) : (
+<<<<<<< HEAD
                         <button className="bg-linear-to-r from-yellow-400 to-yellow-500 text-black px-6 py-2 rounded-full font-medium hover:scale-105 transition-transform">
                             Sign Up
                         </button>
+=======
+                        <Link 
+                        to={"/auth/signup"}
+                        className="bg-linear-to-r from-yellow-400 to-yellow-500 text-black px-6 py-2 rounded-full font-medium hover:scale-105 transition-transform">
+                            Sign Up
+                        </Link>
+>>>>>>> temp-fix
                     )}
                 </div>
                 <button className="md:hidden text-black">

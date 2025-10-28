@@ -3,7 +3,11 @@ import Footer from '../components/Footer';
 import Header from '../components/Header';
 import { Search, Users, Target, Star } from "lucide-react";
 import { FileEdit, MessageCircle, Image, CalendarCheck } from "lucide-react";
+<<<<<<< HEAD
 
+=======
+import { Link } from 'react-router-dom';
+>>>>>>> temp-fix
 
 const Landing = () => {
 
@@ -20,8 +24,13 @@ const Landing = () => {
     ];
 
     useEffect(() => {
+<<<<<<< HEAD
         const typeSpeed = isDeleting ? 40 : 60;
         const pauseTime = 2000;
+=======
+        const typeSpeed = isDeleting ? 50 : 60;
+        const pauseTime = 1000;
+>>>>>>> temp-fix
 
         if (isPaused) {
             const pauseTimer = setTimeout(() => {
@@ -88,18 +97,35 @@ const Landing = () => {
                             </div>
 
                             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+<<<<<<< HEAD
                                 <button className="bg-linear-to-r from-yellow-400 to-yellow-500 text-black px-8 py-4 rounded-xl font-bold text-lg hover:scale-105 transition-transform shadow-lg shadow-yellow-500/25 flex items-center gap-2 cursor-pointer">
+=======
+                                <Link 
+                                to={"/auth/login"}
+                                className="bg-linear-to-r from-yellow-400 to-yellow-500 text-black px-8 py-4 rounded-xl font-bold text-lg hover:scale-105 transition-transform shadow-lg shadow-yellow-500/25 flex items-center gap-2 cursor-pointer">
+>>>>>>> temp-fix
                                     Get Started
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                     </svg>
+<<<<<<< HEAD
                                 </button>
                                 <button className="border border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-50 transition-all backdrop-blur-sm flex items-center gap-2 cursor-pointer">
+=======
+                                </Link>
+                                <Link 
+                                to={"/auth/signup"}
+                                className="border border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-50 transition-all backdrop-blur-sm flex items-center gap-2 cursor-pointer">
+>>>>>>> temp-fix
                                     Become a Teacher
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                                     </svg>
+<<<<<<< HEAD
                                 </button>
+=======
+                                </Link>
+>>>>>>> temp-fix
                             </div>
 
                             <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-8 border-t border-gray-200">
@@ -118,8 +144,13 @@ const Landing = () => {
                     </div>
                 </section>
 
+<<<<<<< HEAD
                 <section className="py-20">
                     <div className="container mx-auto px-6">
+=======
+                <section className="py-20" >
+                    <div className="container mx-auto px-6" id='how-it-work'>
+>>>>>>> temp-fix
                         <div className="text-center mb-16">
                             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
                                 How Hyperlocal Works
@@ -199,7 +230,11 @@ const Landing = () => {
                     </div>
                 </section>
 
+<<<<<<< HEAD
                 <section className="py-20">
+=======
+                <section className="py-20" id='Community' >
+>>>>>>> temp-fix
                     <div className="container mx-auto px-6">
                         <div className="max-w-6xl mx-auto">
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -328,7 +363,11 @@ const Landing = () => {
                     </div>
                 </section>
 
+<<<<<<< HEAD
                 <section className="py-20">
+=======
+                <section className="py-20" id='Pricing' >
+>>>>>>> temp-fix
                     <div className="container mx-auto px-6">
                         <div className="text-center mb-16">
                             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">

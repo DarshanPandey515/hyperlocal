@@ -279,7 +279,11 @@ export default function Dashboard() {
                                             <div>
                                                 <p className="text-sm font-medium text-gray-600">{stat.title}</p>
                                                 <p className="text-3xl font-bold text-gray-900 mt-2">{stat.value}</p>
+<<<<<<< HEAD
                                                 <p className="text-sm text-green-600 mt-1">{stat.change}</p>
+=======
+                                                {/* <p className="text-sm text-green-600 mt-1">{stat.change}</p> */}
+>>>>>>> temp-fix
                                             </div>
                                         </div>
                                     </div>

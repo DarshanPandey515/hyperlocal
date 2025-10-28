@@ -55,7 +55,11 @@ export default function Login() {
                     loginTime: new Date().toISOString()
                 };
                 localStorage.setItem('hyperlocal_user', JSON.stringify(userData));
+<<<<<<< HEAD
                 navigate('/');
+=======
+                navigate('/dashboard');
+>>>>>>> temp-fix
             } else {
                 setError('Invalid username or password');
             }
