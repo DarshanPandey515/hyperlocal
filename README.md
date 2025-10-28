@@ -98,29 +98,3 @@ This project aims to **revive local learning ecosystems** and **strengthen commu
 | **IDE** | Visual Studio Code |
 
 ---
-
-
-## 🔍 User Flow
-
-```mermaid
-flowchart TD
-    A[User Visits Platform] --> B[Signup or Login]
-    B --> C[Choose Role: Learner, Teacher, or Both]
-    C --> D[View Dashboard]
-    D --> E[Search or Filter by Skill or Location]
-    E --> F[View User Profiles]
-    F --> G{Interested?}
-    G -->|Yes| H[Connect via Message or Meetup]
-    H --> I[Schedule Session or Collaboration]
-    G -->|No| J[Return to Dashboard]
-    D --> K[Post a Skill]
-    K --> L[Select Exchange Mode - Fee Based or Skill Swap]
-    L --> M[Submit Listing to Backend]
-    M --> D
-    D --> N[Connect with Same Skill Users]
-    N --> O[Chat or Form Skill Group - Future Feature]
-<<<<<<< HEAD
-    O --> D
-=======
-    O --> D
->>>>>>> temp-fix
