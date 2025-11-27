@@ -1,6 +1,3 @@
-import React from 'react'
-import { Github } from 'lucide-react'
-
 export default function Footer() {
     return (
         <footer className="bg-white border-t border-gray-800 py-12">
@@ -14,13 +11,13 @@ export default function Footer() {
                     </div>
 
                     <div className="md:ml-auto">
+                        <h4 className="font-bold text-black mb-4">Quick Links</h4>
                         <div className="space-y-2">
-                            <h4 className="font-bold text-black mb-4">
-                                <a href="https://github.com/DarshanPandey515/hyperlocal" target='_blank'>
-                                    <Github />
+                            {['Features', 'Pricing', 'Contact', 'Privacy Policy'].map((link) => (
+                                <a key={link} href="#" className="block text-black/60 hover:text-yellow-400 transition-colors">
+                                    {link}
                                 </a>
-                            </h4>
-
+                            ))}
                         </div>
                     </div>
                 </div>

@@ -1,21 +1,18 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebase/config';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 export default function Login() {
     const [formData, setFormData] = useState({
-        username: '',
+        email: '',
         password: ''
     });
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-
-    // Default credentials
-    const DEFAULT_CREDENTIALS = {
-        username: 'darshan',
-        password: 'passsword123'
-    };
 
     const handleChange = (e) => {
         setFormData({
@@ -25,40 +22,63 @@ export default function Login() {
         setError('');
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        setError('');
 
-        if (!formData.username || !formData.password) {
+        if (!formData.email || !formData.password) {
             setError('Please fill in all fields');
+            setLoading(false);
             return;
         }
 
-        // Check against default credentials
-        if (formData.username === DEFAULT_CREDENTIALS.username && formData.password === DEFAULT_CREDENTIALS.password) {
+        try {
+            const userCredential = await signInWithEmailAndPassword(
+                auth,
+                formData.email,
+                formData.password
+            );
+
+            const user = userCredential.user;
+
             // Store user in localStorage
             const userData = {
-                username: formData.username,
+                uid: user.uid,
+                email: user.email,
                 isLoggedIn: true,
                 loginTime: new Date().toISOString()
             };
             localStorage.setItem('hyperlocal_user', JSON.stringify(userData));
-            navigate('/dashboard');
-        } else {
-            // Check if user exists in localStorage (for signed up users)
-            const existingUsers = JSON.parse(localStorage.getItem('hyperlocal_users') || '[]');
-            const user = existingUsers.find(u => u.username === formData.username && u.password === formData.password);
 
-            if (user) {
-                const userData = {
-                    username: user.username,
-                    isLoggedIn: true,
-                    loginTime: new Date().toISOString()
-                };
-                localStorage.setItem('hyperlocal_user', JSON.stringify(userData));
-                navigate('/dashboard');
-            } else {
-                setError('Invalid username or password');
+            navigate('/dashboard');
+        } catch (error) {
+            console.error('Login error:', error);
+            let errorMessage = 'Failed to sign in';
+
+            switch (error.code) {
+                case 'auth/invalid-email':
+                    errorMessage = 'Invalid email address';
+                    break;
+                case 'auth/user-disabled':
+                    errorMessage = 'This account has been disabled';
+                    break;
+                case 'auth/user-not-found':
+                    errorMessage = 'No account found with this email';
+                    break;
+                case 'auth/wrong-password':
+                    errorMessage = 'Incorrect password';
+                    break;
+                case 'auth/too-many-requests':
+                    errorMessage = 'Too many failed attempts. Please try again later';
+                    break;
+                default:
+                    errorMessage = error.message;
             }
+
+            setError(errorMessage);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -80,17 +100,18 @@ export default function Login() {
                             )}
 
                             <div>
-                                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-                                    Username
+                                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                                    Email
                                 </label>
                                 <input
-                                    type="text"
-                                    id="username"
-                                    name="username"
-                                    value={formData.username}
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    value={formData.email}
                                     onChange={handleChange}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-colors"
-                                    placeholder="Enter your username"
+                                    placeholder="Enter your email"
+                                    required
                                 />
                             </div>
 
@@ -106,20 +127,16 @@ export default function Login() {
                                     onChange={handleChange}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-colors"
                                     placeholder="Enter your password"
+                                    required
                                 />
-                            </div>
-
-                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                                <p className="text-sm text-yellow-800 font-medium mb-1">Demo Credentials:</p>
-                                <p className="text-sm text-yellow-700">Username: darshan</p>
-                                <p className="text-sm text-yellow-700">Password: passsword123</p>
                             </div>
 
                             <button
                                 type="submit"
-                                className="w-full bg-linear-to-r from-yellow-400 to-yellow-500 text-black font-bold py-3 px-4 rounded-lg hover:scale-105 transition-transform shadow-lg shadow-yellow-500/25"
+                                disabled={loading}
+                                className="w-full bg-linear-to-r from-yellow-400 to-yellow-500 text-black font-bold py-3 px-4 rounded-lg hover:scale-105 transition-transform shadow-lg shadow-yellow-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Sign In
+                                {loading ? 'Signing In...' : 'Sign In'}
                             </button>
                         </form>
 

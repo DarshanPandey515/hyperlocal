@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Footer from '../components/Footer';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, db } from '../firebase/config';
 import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 export default function Signup() {
     const [formData, setFormData] = useState({
         username: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        role: 'learner' // default role
     });
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -21,54 +26,93 @@ export default function Signup() {
         setError('');
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        setError('');
 
         // Validation
-        if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
+        if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword || !formData.role) {
             setError('Please fill in all fields');
+            setLoading(false);
             return;
         }
 
         if (formData.password !== formData.confirmPassword) {
             setError('Passwords do not match');
+            setLoading(false);
             return;
         }
 
         if (formData.password.length < 6) {
-            setError('Password must be at least 6 characters long');
+            setError('Password should be at least 6 characters');
+            setLoading(false);
             return;
         }
 
-        // Check if username already exists
-        const existingUsers = JSON.parse(localStorage.getItem('hyperlocal_users') || '[]');
-        const userExists = existingUsers.find(user => user.username === formData.username);
+        try {
+            // Create user in Firebase Authentication
+            const userCredential = await createUserWithEmailAndPassword(
+                auth,
+                formData.email,
+                formData.password
+            );
 
-        if (userExists) {
-            setError('Username already exists');
-            return;
+            const user = userCredential.user;
+
+            // Update profile with username
+            await updateProfile(user, {
+                displayName: formData.username
+            });
+
+            // Store user data in Firestore with role
+            await setDoc(doc(db, 'users', user.uid), {
+                uid: user.uid,
+                username: formData.username,
+                email: formData.email,
+                role: formData.role,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            });
+
+            // Store minimal user info in localStorage for quick access
+            const userData = {
+                uid: user.uid,
+                email: user.email,
+                username: formData.username,
+                role: formData.role,
+                isLoggedIn: true,
+                loginTime: new Date().toISOString()
+            };
+            localStorage.setItem('hyperlocal_user', JSON.stringify(userData));
+
+            // Redirect based on role or to dashboard
+            navigate('/dashboard');
+        } catch (error) {
+            console.error('Signup error:', error);
+            let errorMessage = 'Failed to create account';
+
+            switch (error.code) {
+                case 'auth/email-already-in-use':
+                    errorMessage = 'An account with this email already exists';
+                    break;
+                case 'auth/invalid-email':
+                    errorMessage = 'Invalid email address';
+                    break;
+                case 'auth/operation-not-allowed':
+                    errorMessage = 'Operation not allowed';
+                    break;
+                case 'auth/weak-password':
+                    errorMessage = 'Password is too weak';
+                    break;
+                default:
+                    errorMessage = error.message;
+            }
+
+            setError(errorMessage);
+        } finally {
+            setLoading(false);
         }
-
-        // Save new user
-        const newUser = {
-            username: formData.username,
-            email: formData.email,
-            password: formData.password,
-            createdAt: new Date().toISOString()
-        };
-
-        const updatedUsers = [...existingUsers, newUser];
-        localStorage.setItem('hyperlocal_users', JSON.stringify(updatedUsers));
-
-        // Auto-login after signup
-        const userData = {
-            username: newUser.username,
-            isLoggedIn: true,
-            loginTime: new Date().toISOString()
-        };
-        localStorage.setItem('hyperlocal_user', JSON.stringify(userData));
-
-        navigate('/');
     };
 
     return (
@@ -79,7 +123,6 @@ export default function Signup() {
                     <div className="max-w-md mx-auto bg-white p-8">
                         <div className="text-center mb-8">
                             <h1 className="text-2xl font-bold text-gray-900">Create your account</h1>
-                            <p className="text-gray-600 mt-2">Join the community today</p>
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-6">
@@ -100,7 +143,7 @@ export default function Signup() {
                                     value={formData.username}
                                     onChange={handleChange}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-colors"
-                                    placeholder="Choose a username"
+                                    placeholder="Enter your username"
                                     required
                                 />
                             </div>
@@ -122,6 +165,39 @@ export default function Signup() {
                             </div>
 
                             <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    I am a
+                                </label>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <label className={`relative flex cursor-pointer flex-col rounded-lg border-2 p-4 text-center focus:outline-none ${formData.role === 'learner' ? 'border-yellow-400 bg-yellow-50' : 'border-gray-200'}`}>
+                                        <input
+                                            type="radio"
+                                            name="role"
+                                            value="learner"
+                                            checked={formData.role === 'learner'}
+                                            onChange={handleChange}
+                                            className="sr-only"
+                                        />
+                                        <span className="text-sm font-medium text-gray-900">Learner</span>
+                                        <span className="text-xs text-gray-500 mt-1">I want to learn</span>
+                                    </label>
+
+                                    <label className={`relative flex cursor-pointer flex-col rounded-lg border-2 p-4 text-center focus:outline-none ${formData.role === 'teacher' ? 'border-yellow-400 bg-yellow-50' : 'border-gray-200'}`}>
+                                        <input
+                                            type="radio"
+                                            name="role"
+                                            value="teacher"
+                                            checked={formData.role === 'teacher'}
+                                            onChange={handleChange}
+                                            className="sr-only"
+                                        />
+                                        <span className="text-sm font-medium text-gray-900">Teacher</span>
+                                        <span className="text-xs text-gray-500 mt-1">I want to teach</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div>
                                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                                     Password
                                 </label>
@@ -132,10 +208,10 @@ export default function Signup() {
                                     value={formData.password}
                                     onChange={handleChange}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-colors"
-                                    placeholder="Create a password"
+                                    placeholder="Enter your password"
                                     required
-                                    minLength="6"
                                 />
+                                <p className="text-xs text-gray-500 mt-1">Password must be at least 6 characters long</p>
                             </div>
 
                             <div>
@@ -156,9 +232,10 @@ export default function Signup() {
 
                             <button
                                 type="submit"
-                                className="w-full bg-linear-to-r from-yellow-400 to-yellow-500 text-black font-bold py-3 px-4 rounded-lg hover:scale-105 transition-transform shadow-lg shadow-yellow-500/25"
+                                disabled={loading}
+                                className="w-full bg-linear-to-r from-yellow-400 to-yellow-500 text-black font-bold py-3 px-4 rounded-lg hover:scale-105 transition-transform shadow-lg shadow-yellow-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Create Account
+                                {loading ? 'Creating Account...' : 'Sign Up'}
                             </button>
                         </form>
 

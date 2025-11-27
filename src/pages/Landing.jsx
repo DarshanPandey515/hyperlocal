@@ -1,80 +1,55 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
-import { Search, Users, Target, Star } from "lucide-react";
+import { Search, Users, Target, Star, Zap, MapPin } from "lucide-react";
 import { FileEdit, MessageCircle, Image, CalendarCheck } from "lucide-react";
-import { Link } from 'react-router-dom';
+import SearchComponent from '../components/SearchComponent';
 
 const Landing = () => {
+    const [searchQuery, setSearchQuery] = useState('');
+    const [popularSkills, setPopularSkills] = useState([]);
+    const navigate = useNavigate();
 
-    const [currentTitleIndex, setCurrentTitleIndex] = useState(0);
-    const [currentText, setCurrentText] = useState('');
-    const [isDeleting, setIsDeleting] = useState(false);
-    const [isPaused, setIsPaused] = useState(false);
-
-    const titles = [
-        "Learn Local",
-        "Teach Local",
-        "Skill Swap",
-        "Talent Nearby"
+    const defaultPopularSkills = [
+        'Guitar', 'Cooking', 'Yoga', 'Programming', 'Photography',
+        'Dance', 'Language', 'Fitness', 'Art', 'Music'
     ];
 
     useEffect(() => {
-        const typeSpeed = isDeleting ? 50 : 60;
-        const pauseTime = 1000;
+        setPopularSkills(defaultPopularSkills);
+    }, []);
 
-        if (isPaused) {
-            const pauseTimer = setTimeout(() => {
-                setIsPaused(false);
-                if (isDeleting) {
-                    setCurrentTitleIndex((prev) => (prev + 1) % titles.length);
-                }
-                setIsDeleting(!isDeleting);
-            }, pauseTime);
-            return () => clearTimeout(pauseTimer);
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (searchQuery.trim()) {
+            navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
         }
+    };
 
-        const timer = setTimeout(() => {
-            if (isDeleting) {
-                setCurrentText(currentText.slice(0, -1));
-                if (currentText === '') {
-                    setIsPaused(true);
-                }
-            } else {
-                const currentTitle = titles[currentTitleIndex];
-                setCurrentText(currentTitle.slice(0, currentText.length + 1));
-                if (currentText === currentTitle) {
-                    setIsPaused(true);
-                }
-            }
-        }, typeSpeed);
-
-        return () => clearTimeout(timer);
-    }, [currentText, isDeleting, isPaused, currentTitleIndex, titles]);
+    const handleQuickSearch = (skill) => {
+        navigate(`/search?q=${encodeURIComponent(skill)}`);
+    };
 
     return (
         <>
             <Header />
             <div className="min-h-screen text-black bg-white">
 
+                {/* Updated Hero Section with Search */}
                 <section className="relative py-32 overflow-hidden">
                     <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-yellow-400/5 via-black to-black"></div>
                     <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl"></div>
                     <div className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-yellow-400/5 rounded-full blur-3xl"></div>
 
                     <div className="container mx-auto px-6 relative z-10">
-                        <div className="max-w-4xl mx-auto text-center">
-                            <div className="inline-flex items-center gap-2 bg-yellow-400/10 border border-yellow-400/20 rounded-full px-4 py-2">
-                                <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-                                <span className="text-yellow-400 text-sm font-medium">Join 10,000+ community members</span>
-                            </div>
+                        <div className="max-w-6xl mx-auto text-center">
 
-                            <div className="min-h-[280px] md:min-h-80 lg:min-h-[360px] flex items-center justify-center">
+                            <div className="min-h-[200px] flex items-center justify-center mb-8">
                                 <div>
                                     <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
                                         <span className="block text-gray-900">
-                                            {currentText}
-                                            <span className="inline-block w-1 h-16 md:h-20 lg:h-24 animate-pulse"></span>
+                                            Talent Nearby
                                         </span>
                                         <span className="block bg-linear-to-r from-yellow-400 to-yellow-500 bg-clip-text text-transparent">
                                             Right Beside You.
@@ -82,28 +57,36 @@ const Landing = () => {
                                     </h1>
 
                                     <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto leading-relaxed text-gray-600">
-                                        Connect with people in your neighborhood who teach, learn, and share what they love.
+                                        Discover local experts, learn new skills, and connect with your neighborhood's talent.
                                     </p>
                                 </div>
                             </div>
 
+                            <SearchComponent
+                                variant="hero"
+                                placeholder="Search for skills like 'guitar lessons', 'yoga classes', 'coding tutor'..."
+                                className="mx-auto mb-12"
+                            />
+
                             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-                                <Link
-                                    to={"/auth/login"}
-                                    className="bg-linear-to-r from-yellow-400 to-yellow-500 text-black px-8 py-4 rounded-xl font-bold text-lg hover:scale-105 transition-transform shadow-lg shadow-yellow-500/25 flex items-center gap-2 cursor-pointer">
+                                <button
+                                    onClick={() => navigate('/auth/signup')}
+                                    className="bg-linear-to-r from-yellow-400 to-yellow-500 text-black px-8 py-4 rounded-xl font-bold text-lg hover:scale-105 transition-transform shadow-lg shadow-yellow-500/25 flex items-center gap-2 cursor-pointer"
+                                >
                                     Get Started
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                     </svg>
-                                </Link>
-                                <Link
-                                    to={"/auth/signup"}
-                                    className="border border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-50 transition-all backdrop-blur-sm flex items-center gap-2 cursor-pointer">
+                                </button>
+                                <button
+                                    onClick={() => navigate('/auth/signup?role=teacher')}
+                                    className="border border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-50 transition-all backdrop-blur-sm flex items-center gap-2 cursor-pointer"
+                                >
                                     Become a Teacher
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                                     </svg>
-                                </Link>
+                                </button>
                             </div>
 
                             <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-8 border-t border-gray-200">
@@ -122,8 +105,8 @@ const Landing = () => {
                     </div>
                 </section>
 
-                <section className="py-20" >
-                    <div className="container mx-auto px-6" id='how-it-work'>
+                <section className="py-20">
+                    <div className="container mx-auto px-6">
                         <div className="text-center mb-16">
                             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
                                 How Hyperlocal Works
@@ -203,7 +186,7 @@ const Landing = () => {
                     </div>
                 </section>
 
-                <section className="py-20" id='Community' >
+                <section className="py-20">
                     <div className="container mx-auto px-6">
                         <div className="max-w-6xl mx-auto">
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -332,7 +315,7 @@ const Landing = () => {
                     </div>
                 </section>
 
-                <section className="py-20" id='Pricing' >
+                <section className="py-20">
                     <div className="container mx-auto px-6">
                         <div className="text-center mb-16">
                             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
