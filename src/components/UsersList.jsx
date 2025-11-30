@@ -1,4 +1,3 @@
-// components/UsersList.jsx (updated)
 import React, { useState, useEffect } from 'react';
 import { collection, query, where, getDocs, addDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
@@ -6,6 +5,8 @@ import { useAuth } from '../hooks/useAuth';
 import { Link } from 'react-router-dom';
 import { UserCheck, MessageCircle } from 'lucide-react';
 import SearchComponent from './SearchComponent';
+import Loading from './Loading';
+
 
 export default function UsersList() {
     const [users, setUsers] = useState([]);
@@ -173,16 +174,9 @@ export default function UsersList() {
         return availableDays.join(', ');
     };
 
-    if (loading) {
-        return (
-            <div className="p-6">
-                <h1 className="text-2xl font-bold mb-6">Find People to Connect With</h1>
-                <div className="flex justify-center items-center h-32">
-                    <div className="text-lg">Loading users...</div>
-                </div>
-            </div>
-        );
-    }
+  if (loading) {
+    return <Loading />;
+  }
 
     return (
         <div className="p-6">
@@ -249,7 +243,7 @@ export default function UsersList() {
                                 {connectionStatus === 'connected' && (
                                     <>
                                         <button
-                                            onClick={() => window.location.href = '/dashboard?tab=messages'}
+                                            onClick={() => window.location.href = '/hyperlocal/dashboard/messages'}
                                             className="flex-1 bg-green-500 text-white py-2 rounded-lg font-medium hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
                                         >
                                             <MessageCircle className="w-4 h-4" />

@@ -106,13 +106,11 @@ function SearchResults() {
                             <h1 className="text-3xl font-bold text-gray-900">Search Results</h1>
                         </div>
 
-                        {/* Use the SearchComponent */}
                         <SearchComponent
                             placeholder="Search for skills, teachers, or topics..."
                             className="mb-6"
                         />
 
-                        {/* Rest of your existing filters and results display */}
                         <div className="flex items-center justify-between mb-6">
                             <p className="text-gray-600">
                                 {loading ? 'Searching...' : `Found ${filteredUsers.length} results for "${searchQuery}"`}
@@ -169,7 +167,6 @@ function SearchResults() {
                         )}
                     </div>
 
-                    {/* Results Grid */}
                     {loading ? (
                         <div className="max-w-4xl mx-auto">
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

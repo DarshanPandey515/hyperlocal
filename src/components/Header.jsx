@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { scrollToSection } from './navigation';
 
 export default function Header() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const { user, loading } = useAuth();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -19,37 +21,55 @@ export default function Header() {
         setIsMobileMenuOpen(!isMobileMenuOpen);
     };
 
+    const handleNavClick = (sectionId) => {
+        setIsMobileMenuOpen(false);
+
+        if (window.location.pathname === '/') {
+            setTimeout(() => {
+                scrollToSection(sectionId);
+            }, 100);
+        } else {
+            navigate(`/#${sectionId}`);
+        }
+    };
+
+    const navItems = [
+        { label: 'How it works?', id: 'how' },
+        { label: 'Community', id: 'community' },
+        { label: 'Pricing', id: 'pricing' }
+    ];
+
     return (
         <>
-            <header className={`fixed w-full z-50 transition-all duration-300 text-black ${isScrolled ? 'bg-white/90 backdrop-blur-sm py-2' : 'bg-transparent py-6'
-                }`}>
+            <header className={`fixed w-full z-50 transition-all duration-300 text-black ${isScrolled ? 'bg-white/90 backdrop-blur-sm py-2' : 'bg-transparent py-6'}`}>
                 <nav className="container mx-auto px-6 flex justify-between items-center">
-                    <Link to={"/"} className="text-2xl font-bold text-black">Hyperlocal</Link>
+                    <Link to={"/"} className="text-2xl font-extrabold text-black">Hyperlocal</Link>
 
-                    {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center space-x-8">
-                        {['How it works?', 'Community', 'Pricing'].map((item) => (
-                            <a key={item} href="#" className="text-black/80 hover:text-black transition-colors">
-                                {item}
-                            </a>
+                        {navItems.map((item) => (
+                            <button
+                                key={item.id}
+                                onClick={() => handleNavClick(item.id)}
+                                className="text-black/80 hover:text-black transition-colors cursor-pointer font-medium"
+                            >
+                                {item.label}
+                            </button>
                         ))}
 
                         {loading ? (
                             <div className="w-20 h-6 bg-gray-200 rounded animate-pulse"></div>
                         ) : user ? (
-                            <>
-                                <Link
-                                    to="/dashboard"
-                                    className="text-black/80 hover:text-black transition-colors"
-                                >
-                                    Dashboard
-                                </Link>
-                            </>
+                            <Link
+                                to="/dashboard"
+                                className="text-black/80 hover:text-black transition-colors font-medium"
+                            >
+                                Dashboard
+                            </Link>
                         ) : (
                             <>
                                 <Link
                                     to="/auth/login"
-                                    className="text-black/80 hover:text-black transition-colors"
+                                    className="text-black/80 hover:text-black transition-colors font-medium"
                                 >
                                     Login
                                 </Link>
@@ -63,7 +83,6 @@ export default function Header() {
                         )}
                     </div>
 
-                    {/* Mobile Menu Button */}
                     <button
                         className="md:hidden text-black"
                         onClick={toggleMobileMenu}
@@ -74,19 +93,17 @@ export default function Header() {
                     </button>
                 </nav>
 
-                {/* Mobile Menu */}
                 {isMobileMenuOpen && (
                     <div className="md:hidden bg-white/95 backdrop-blur-sm border-t border-gray-200">
                         <div className="container mx-auto px-6 py-4 space-y-4">
-                            {['How it works?', 'Community', 'Pricing'].map((item) => (
-                                <a
-                                    key={item}
-                                    href="#"
-                                    className="block text-black/80 hover:text-black transition-colors py-2"
-                                    onClick={() => setIsMobileMenuOpen(false)}
+                            {navItems.map((item) => (
+                                <button
+                                    key={item.id}
+                                    onClick={() => handleNavClick(item.id)}
+                                    className="block text-black/80 hover:text-black transition-colors py-2 w-full text-left font-medium"
                                 >
-                                    {item}
-                                </a>
+                                    {item.label}
+                                </button>
                             ))}
 
                             {loading ? (
@@ -101,7 +118,7 @@ export default function Header() {
                                         Dashboard
                                     </Link>
                                     <div className="flex items-center gap-2 py-2">
-                                        <div className="w-8 h-8 bg-linear-to-r from-yellow-400 to-yellow-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                        <div className="w-8 h-8 bg-linear-to-r from-yellow-400 to-yellow-500 rounded-full flex items-center justify-center text-white text-sm">
                                             {user.username?.charAt(0).toUpperCase()}
                                         </div>
                                         <span className="text-black/80">
@@ -132,7 +149,6 @@ export default function Header() {
                 )}
             </header>
 
-            {/* Overlay for mobile menu */}
             {isMobileMenuOpen && (
                 <div
                     className="fixed inset-0 bg-black/20 z-40 md:hidden"

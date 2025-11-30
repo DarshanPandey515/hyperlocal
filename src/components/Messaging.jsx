@@ -1,9 +1,9 @@
-// components/Messaging.jsx
 import React, { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot, addDoc, orderBy, serverTimestamp, getDoc, doc, deleteDoc, updateDoc, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { useAuth } from '../hooks/useAuth';
 import { MessageCircle, Trash2 } from 'lucide-react';
+import Loading from './Loading';
 
 export default function Messaging() {
     const [chats, setChats] = useState([]);
@@ -30,12 +30,11 @@ export default function Messaging() {
             );
 
             const unsubscribe = onSnapshot(q, async (snapshot) => {
-                const chatsMap = new Map(); // Use Map to track unique chats by participant pair
+                const chatsMap = new Map();
 
                 for (const docSnap of snapshot.docs) {
                     const chat = { id: docSnap.id, ...docSnap.data() };
 
-                    // Get other participant's details
                     const otherParticipantId = chat.participants.find(id => id !== currentUser.uid);
                     if (otherParticipantId) {
                         try {
@@ -50,7 +49,6 @@ export default function Messaging() {
                                     location: userData.location || ''
                                 };
                             } else {
-                                // Fallback to participantNames if user doc doesn't exist
                                 chat.otherUser = {
                                     id: otherParticipantId,
                                     name: chat.participantNames?.[otherParticipantId] || 'Unknown User',
@@ -61,7 +59,6 @@ export default function Messaging() {
                             }
                         } catch (error) {
                             console.error('Error fetching user data:', error);
-                            // Fallback
                             chat.otherUser = {
                                 id: otherParticipantId,
                                 name: chat.participantNames?.[otherParticipantId] || 'Unknown User',
@@ -71,34 +68,26 @@ export default function Messaging() {
                             };
                         }
 
-                        // Create a unique key for this participant pair (sorted to ensure consistency)
                         const participantKey = [currentUser.uid, otherParticipantId].sort().join('_');
 
-                        // Check if we already have a chat with this participant pair
                         const existingChat = chatsMap.get(participantKey);
 
                         if (!existingChat) {
-                            // First time seeing this participant pair
                             chatsMap.set(participantKey, chat);
                         } else {
-                            // Duplicate chat found - keep the one with the most recent activity
                             const existingTime = existingChat.lastMessageAt?.toDate?.() || existingChat.createdAt?.toDate?.();
                             const currentTime = chat.lastMessageAt?.toDate?.() || chat.createdAt?.toDate?.();
 
                             if (currentTime > existingTime) {
-                                // Current chat is more recent, replace the existing one
                                 chatsMap.set(participantKey, chat);
-                                // Delete the older duplicate chat
                                 await deleteDuplicateChat(existingChat.id);
                             } else {
-                                // Existing chat is more recent, delete the current duplicate
                                 await deleteDuplicateChat(chat.id);
                             }
                         }
                     }
                 }
 
-                // Convert Map back to array
                 const uniqueChatsList = Array.from(chatsMap.values());
                 setChats(uniqueChatsList);
                 setLoading(false);
@@ -113,7 +102,6 @@ export default function Messaging() {
 
     const deleteDuplicateChat = async (chatId) => {
         try {
-            // First, delete all messages in the chat
             const messagesRef = collection(db, 'chats', chatId, 'messages');
             const messagesSnapshot = await getDocs(messagesRef);
 
@@ -123,7 +111,6 @@ export default function Messaging() {
 
             await Promise.all(deletePromises);
 
-            // Then delete the chat document itself
             await deleteDoc(doc(db, 'chats', chatId));
 
             console.log(`Deleted duplicate chat: ${chatId}`);
@@ -160,7 +147,6 @@ export default function Messaging() {
                 timestamp: serverTimestamp()
             });
 
-            // Update last message in chat
             const chatRef = doc(db, 'chats', selectedChat);
             await updateDoc(chatRef, {
                 lastMessage: newMessage,
@@ -176,7 +162,6 @@ export default function Messaging() {
 
     const handleChatSelect = (chatId) => {
         setSelectedChat(chatId);
-        // Clean up previous listener
         const unsubscribe = fetchMessages(chatId);
         return unsubscribe;
     };
@@ -187,60 +172,12 @@ export default function Messaging() {
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
-    // Function to manually clean up duplicate chats (optional - for admin use)
-    // const cleanupDuplicateChats = async () => {
-    //     if (!currentUser) return;
-
-    //     try {
-    //         const chatsRef = collection(db, 'chats');
-    //         const q = query(chatsRef, where('participants', 'array-contains', currentUser.uid));
-    //         const snapshot = await getDocs(q);
-
-    //         const participantMap = new Map();
-    //         const duplicates = [];
-
-    //         snapshot.docs.forEach(docSnap => {
-    //             const chat = { id: docSnap.id, ...docSnap.data() };
-    //             const otherParticipantId = chat.participants.find(id => id !== currentUser.uid);
-
-    //             if (otherParticipantId) {
-    //                 const participantKey = [currentUser.uid, otherParticipantId].sort().join('_');
-
-    //                 if (participantMap.has(participantKey)) {
-    //                     duplicates.push(chat);
-    //                 } else {
-    //                     participantMap.set(participantKey, chat);
-    //                 }
-    //             }
-    //         });
-
-    //         // Delete all duplicates
-    //         for (const duplicate of duplicates) {
-    //             await deleteDuplicateChat(duplicate.id);
-    //         }
-
-    //         alert(`Cleaned up ${duplicates.length} duplicate chats`);
-    //         fetchChats(); // Refresh the chat list
-    //     } catch (error) {
-    //         console.error('Error cleaning up duplicates:', error);
-    //         alert('Error cleaning up duplicates');
-    //     }
-    // };
-
     if (loading) {
-        return (
-            <div className="p-6">
-                <h1 className="text-2xl font-bold mb-6">Messages</h1>
-                <div className="flex justify-center items-center h-32">
-                    <div className="text-lg">Loading chats...</div>
-                </div>
-            </div>
-        );
+        return <Loading />;
     }
 
     return (
         <div className="h-[calc(100vh-140px)] flex bg-white rounded-lg shadow-sm border border-gray-200 m-6">
-            {/* Chats List */}
             <div className="w-80 border-r border-gray-200 flex flex-col">
                 <div className="p-4 border-b border-gray-200 bg-white">
                     <div className="flex justify-between items-center">
@@ -250,16 +187,6 @@ export default function Messaging() {
                                 {chats.length} conversation{chats.length !== 1 ? 's' : ''}
                             </p>
                         </div>
-                        {/* {chats.length > 0 && (
-                            <button
-                                onClick={cleanupDuplicateChats}
-                                className="text-xs text-red-600 hover:text-red-800 flex items-center gap-1"
-                                title="Clean up duplicate chats"
-                            >
-                                <Trash2 className="w-3 h-3" />
-                                Cleanup
-                            </button>
-                        )} */}
                     </div>
                 </div>
 
@@ -321,11 +248,9 @@ export default function Messaging() {
                 </div>
             </div>
 
-            {/* Chat Area */}
             <div className="flex-1 flex flex-col">
                 {selectedChat ? (
                     <>
-                        {/* Chat Header */}
                         <div className="p-4 border-b border-gray-200 bg-white">
                             <div className="flex items-center gap-3">
                                 {chats.find(c => c.id === selectedChat)?.otherUser?.photoURL ? (
@@ -357,7 +282,6 @@ export default function Messaging() {
                             </div>
                         </div>
 
-                        {/* Messages */}
                         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
                             {messages.length === 0 ? (
                                 <div className="flex items-center justify-center h-full text-gray-500">
@@ -393,7 +317,6 @@ export default function Messaging() {
                             )}
                         </div>
 
-                        {/* Message Input */}
                         <div className="p-4 border-t border-gray-200 bg-white">
                             <div className="flex gap-2">
                                 <input

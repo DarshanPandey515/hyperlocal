@@ -1,8 +1,9 @@
-// components/ProfileSetup.jsx
 import React, { useState, useEffect } from 'react';
 import { doc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { useAuth } from '../hooks/useAuth';
+import Loading from './Loading';
+import { Link } from 'react-router-dom';
 
 export default function ProfileSetup() {
     const { user: currentUser } = useAuth();
@@ -13,18 +14,15 @@ export default function ProfileSetup() {
     const [activeSection, setActiveSection] = useState('basic');
 
     const [profileData, setProfileData] = useState({
-        // Basic Info
         name: '',
         bio: '',
         location: '',
         phone: '',
-        
-        // Skills & Expertise
+
         skills: [],
-        expertiseLevel: 'beginner', // beginner, intermediate, advanced, expert
+        expertiseLevel: 'beginner', 
         languages: [],
-        
-        // Availability & Timing
+
         availability: {
             monday: { available: false, times: [] },
             tuesday: { available: false, times: [] },
@@ -35,23 +33,20 @@ export default function ProfileSetup() {
             sunday: { available: false, times: [] }
         },
         timezone: 'IST',
-        preferredSessionDuration: '60', // minutes
-        
-        // Pricing & Charges
+        preferredSessionDuration: '60',
+
         pricing: {
             rate: '',
             currency: 'INR',
-            rateType: 'hourly', // hourly, per_session, monthly
+            rateType: 'hourly',
             freeInitialConsultation: false,
             packageDeals: []
         },
-        
-        // Teaching/Learning Preferences
-        teachingStyle: '', // visual, hands-on, theoretical, etc.
+
+        teachingStyle: '',
         learningGoals: [],
-        preferredCommunication: ['chat', 'video'], // chat, video, phone, in_person
-        
-        // Social Links
+        preferredCommunication: ['chat', 'video'], 
+
         socialLinks: {
             website: '',
             linkedin: '',
@@ -59,8 +54,7 @@ export default function ProfileSetup() {
             twitter: '',
             portfolio: ''
         },
-        
-        // Verification
+
         verified: false,
         rating: 0,
         totalSessions: 0
@@ -74,7 +68,7 @@ export default function ProfileSetup() {
 
     const loadProfileData = async () => {
         if (!currentUser) return;
-        
+
         setLoading(true);
         try {
             const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
@@ -177,7 +171,7 @@ export default function ProfileSetup() {
             price: parseFloat(price),
             discount: Math.round(((profileData.pricing.rate * sessions) - price) / (profileData.pricing.rate * sessions) * 100)
         };
-        
+
         setProfileData(prev => ({
             ...prev,
             pricing: {
@@ -199,7 +193,7 @@ export default function ProfileSetup() {
 
     const saveProfile = async () => {
         if (!currentUser) return;
-        
+
         setSaving(true);
         try {
             await updateDoc(doc(db, 'users', currentUser.uid), {
@@ -216,43 +210,28 @@ export default function ProfileSetup() {
     };
 
     if (loading) {
-        return (
-            <div className="max-w-6xl mx-auto p-6">
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-                    <div className="animate-pulse">
-                        <div className="h-8 bg-gray-200 rounded w-1/3 mb-6"></div>
-                        <div className="space-y-4">
-                            <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-                            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
+        return <Loading />;
     }
 
     return (
         <div className="max-w-6xl mx-auto p-6">
-            {/* Navigation Tabs */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
                 <div className="flex overflow-x-auto border-b border-gray-200">
                     {[
-                        { id: 'basic', name: 'Basic Info'},
-                        { id: 'skills', name: 'Skills & Expertise'},
-                        { id: 'availability', name: 'Availability'},
-                        { id: 'pricing', name: 'Pricing'},
-                        { id: 'preferences', name: 'Preferences'},
-                        { id: 'social', name: 'Social Links'}
+                        { id: 'basic', name: 'Basic Info' },
+                        { id: 'skills', name: 'Skills & Expertise' },
+                        { id: 'availability', name: 'Availability' },
+                        { id: 'pricing', name: 'Pricing' },
+                        { id: 'preferences', name: 'Preferences' },
+                        { id: 'social', name: 'Social Links' }
                     ].map((tab) => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveSection(tab.id)}
-                            className={`flex items-center gap-2 px-6 py-4 border-b-2 font-medium whitespace-nowrap ${
-                                activeSection === tab.id
-                                    ? 'border-yellow-400 text-yellow-600 bg-yellow-50'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                            }`}
+                            className={`flex items-center gap-2 px-6 py-4 border-b-2 font-medium whitespace-nowrap ${activeSection === tab.id
+                                ? 'border-yellow-400 text-yellow-600 bg-yellow-50'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                }`}
                         >
                             {tab.name}
                         </button>
@@ -261,11 +240,10 @@ export default function ProfileSetup() {
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-                {/* Basic Information */}
                 {activeSection === 'basic' && (
                     <div className="space-y-6">
                         <h2 className="text-2xl font-bold text-gray-900">Basic Information</h2>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -279,7 +257,7 @@ export default function ProfileSetup() {
                                     placeholder="Enter your full name"
                                 />
                             </div>
-                            
+
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Phone Number
@@ -292,8 +270,8 @@ export default function ProfileSetup() {
                                     placeholder="+91 1234567890"
                                 />
                             </div>
-                            
-                            <div className="md:col-span-2">
+
+                            <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Location
                                 </label>
@@ -302,10 +280,24 @@ export default function ProfileSetup() {
                                     value={profileData.location}
                                     onChange={(e) => handleInputChange(null, 'location', e.target.value)}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400"
-                                    placeholder="City, State"
+                                    placeholder="Enter your full name"
                                 />
                             </div>
-                            
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Email
+                                </label>
+                                <input
+                                    type="email"
+                                    value={profileData.email}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none disabled:"
+                                    placeholder="+91 1234567890"
+                                />
+                            </div>
+
+
+
                             <div className="md:col-span-2">
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Bio *
@@ -325,11 +317,10 @@ export default function ProfileSetup() {
                     </div>
                 )}
 
-                {/* Skills & Expertise */}
                 {activeSection === 'skills' && (
                     <div className="space-y-6">
                         <h2 className="text-2xl font-bold text-gray-900">Skills & Expertise</h2>
-                        
+
                         <div className="space-y-6">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -432,11 +423,10 @@ export default function ProfileSetup() {
                     </div>
                 )}
 
-                {/* Availability */}
                 {activeSection === 'availability' && (
                     <div className="space-y-6">
                         <h2 className="text-2xl font-bold text-gray-900">Availability & Timing</h2>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -453,7 +443,7 @@ export default function ProfileSetup() {
                                     <option value="GMT">Greenwich Mean Time (GMT)</option>
                                 </select>
                             </div>
-                            
+
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Preferred Session Duration
@@ -484,7 +474,7 @@ export default function ProfileSetup() {
                                         />
                                         <label className="font-medium capitalize">{day}</label>
                                     </div>
-                                    
+
                                     {data.available && (
                                         <div className="flex-1">
                                             <div className="flex gap-2 mb-2">
@@ -519,11 +509,10 @@ export default function ProfileSetup() {
                     </div>
                 )}
 
-                {/* Pricing */}
                 {activeSection === 'pricing' && (
                     <div className="space-y-6">
                         <h2 className="text-2xl font-bold text-gray-900">Pricing & Charges</h2>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -539,7 +528,7 @@ export default function ProfileSetup() {
                                     <option value="monthly">Monthly</option>
                                 </select>
                             </div>
-                            
+
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Currency
@@ -554,7 +543,7 @@ export default function ProfileSetup() {
                                     <option value="EUR">Euro (€)</option>
                                 </select>
                             </div>
-                            
+
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Rate ({profileData.pricing.currency})
@@ -567,7 +556,7 @@ export default function ProfileSetup() {
                                     placeholder="0.00"
                                 />
                             </div>
-                            
+
                             <div className="flex items-center">
                                 <input
                                     type="checkbox"
@@ -611,7 +600,7 @@ export default function ProfileSetup() {
                                     Add Package
                                 </button>
                             </div>
-                            
+
                             <div className="space-y-3">
                                 {profileData.pricing.packageDeals.map((pkg) => (
                                     <div key={pkg.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
@@ -637,11 +626,10 @@ export default function ProfileSetup() {
                     </div>
                 )}
 
-                {/* Preferences */}
                 {activeSection === 'preferences' && (
                     <div className="space-y-6">
                         <h2 className="text-2xl font-bold text-gray-900">Preferences</h2>
-                        
+
                         <div className="space-y-6">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -690,11 +678,10 @@ export default function ProfileSetup() {
                     </div>
                 )}
 
-                {/* Social Links */}
                 {activeSection === 'social' && (
                     <div className="space-y-6">
                         <h2 className="text-2xl font-bold text-gray-900">Social Links & Portfolio</h2>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {Object.entries(profileData.socialLinks).map(([platform, url]) => (
                                 <div key={platform}>
@@ -714,12 +701,11 @@ export default function ProfileSetup() {
                     </div>
                 )}
 
-                {/* Save Button */}
-                <div className="flex gap-4 pt-8 border-t border-gray-200">
+                <div className="flex gap-4 pt-8">
                     <button
                         onClick={saveProfile}
                         disabled={saving}
-                        className="bg-yellow-400 text-black px-8 py-3 rounded-lg font-medium hover:bg-yellow-500 transition-colors disabled:opacity-50 flex items-center gap-2"
+                        className="bg-yellow-400 text-black px-8 py-3 rounded-lg font-medium hover:bg-yellow-500 transition-colors disabled:opacity-50 flex items-center gap-2 cursor-pointer"
                     >
                         {saving ? (
                             <>
@@ -730,9 +716,11 @@ export default function ProfileSetup() {
                             'Save Profile'
                         )}
                     </button>
-                    <button className="border border-gray-300 text-gray-700 px-8 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                    <Link 
+                    to={`/profile/${profileData.uid}`}
+                    className="border border-gray-300 text-gray-700 px-8 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors">
                         Preview Profile
-                    </button>
+                    </Link>
                 </div>
             </div>
         </div>

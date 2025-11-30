@@ -5,6 +5,7 @@ import Header from '../components/Header';
 import { Search, Users, Target, Star, Zap, MapPin } from "lucide-react";
 import { FileEdit, MessageCircle, Image, CalendarCheck } from "lucide-react";
 import SearchComponent from '../components/SearchComponent';
+import { handleLandingPageLoad, scrollToSection } from '../components/navigation';
 
 const Landing = () => {
     const [searchQuery, setSearchQuery] = useState('');
@@ -17,7 +18,26 @@ const Landing = () => {
     ];
 
     useEffect(() => {
+        const hash = window.location.hash.replace('#', '');
+        if (!hash) return;
+
+        setTimeout(() => {
+            scrollToSection(hash);
+        }, 300);
+    }, []);
+
+    useEffect(() => {
         setPopularSkills(defaultPopularSkills);
+        handleLandingPageLoad();
+    }, []);
+
+    useEffect(() => {
+        const handleHashChange = () => {
+            handleLandingPageLoad();
+        };
+
+        window.addEventListener('hashchange', handleHashChange);
+        return () => window.removeEventListener('hashchange', handleHashChange);
     }, []);
 
     const handleSearch = (e) => {
@@ -35,8 +55,6 @@ const Landing = () => {
         <>
             <Header />
             <div className="min-h-screen text-black bg-white">
-
-                {/* Updated Hero Section with Search */}
                 <section className="relative py-32 overflow-hidden">
                     <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-yellow-400/5 via-black to-black"></div>
                     <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl"></div>
@@ -44,7 +62,6 @@ const Landing = () => {
 
                     <div className="container mx-auto px-6 relative z-10">
                         <div className="max-w-6xl mx-auto text-center">
-
                             <div className="min-h-[200px] flex items-center justify-center mb-8">
                                 <div>
                                     <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
@@ -105,7 +122,7 @@ const Landing = () => {
                     </div>
                 </section>
 
-                <section className="py-20">
+                <section className="py-20" id='how'>
                     <div className="container mx-auto px-6">
                         <div className="text-center mb-16">
                             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
@@ -159,7 +176,6 @@ const Landing = () => {
                                             <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 group hover:border-yellow-300">
                                                 <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
                                                     <step.icon className="w-7 h-7" />
-
                                                 </div>
                                                 <h3 className="text-xl font-bold text-gray-900 mb-2">
                                                     {step.title}
@@ -186,7 +202,7 @@ const Landing = () => {
                     </div>
                 </section>
 
-                <section className="py-20">
+                <section className="py-20" id='community'>
                     <div className="container mx-auto px-6">
                         <div className="max-w-6xl mx-auto">
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -203,7 +219,6 @@ const Landing = () => {
 
                                     <div className="space-y-6">
                                         {[
-
                                             {
                                                 icon: FileEdit,
                                                 title: "Share Your Progress",
@@ -224,11 +239,10 @@ const Landing = () => {
                                                 title: "Event Creation",
                                                 description: "Organize local workshops, meetups, and learning sessions"
                                             }
-
                                         ].map((feature, index) => (
                                             <div key={index} className="flex items-start gap-4">
                                                 <div className="text-2xl mt-1">
-                                                    <feature.icon className="w-6 h-6 " />
+                                                    <feature.icon className="w-6 h-6" />
                                                 </div>
                                                 <div>
                                                     <h3 className="text-lg font-semibold text-gray-900 mb-1">{feature.title}</h3>
@@ -276,7 +290,7 @@ const Landing = () => {
                                     </div>
                                     <div className="bg-white rounded-2xl border border-gray-200 shadow-xl p-6 transform transition-transform duration-300 mt-4">
                                         <div className="flex items-center gap-3 mb-4">
-                                            <div className="w-12 h-12 bg-linear-to-r from-slate-400 to-slate-500 rounded-full flex items-center justify-center text-white font-bold">
+                                            <div className="w-12 h-12 bg-linear-to-r from-yellow-400 to-yellow-500 rounded-full flex items-center justify-center text-white font-bold">
                                                 SJR
                                             </div>
                                             <div>
@@ -307,15 +321,13 @@ const Landing = () => {
                                             <span>2 hours ago</span>
                                         </div>
                                     </div>
-
-
                                 </div>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <section className="py-20">
+                <section className="py-20" id='pricing'>
                     <div className="container mx-auto px-6">
                         <div className="text-center mb-16">
                             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
@@ -331,7 +343,6 @@ const Landing = () => {
                         <div className="max-w-5xl mx-auto">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                                 {[
-
                                     {
                                         name: "Learner",
                                         description: "For anyone looking to discover and learn new skills nearby",
@@ -382,9 +393,8 @@ const Landing = () => {
                                         cta: "Upgrade Now",
                                         color: "black"
                                     }
-
                                 ].map((plan, index) => (
-                                    <div key={index} className={`relative rounded-2xl border-2 transition-all duration-300    ${plan.popular
+                                    <div key={index} className={`relative rounded-2xl border-2 transition-all duration-300 ${plan.popular
                                         ? 'border-yellow-400 bg-white shadow-xl'
                                         : 'border-gray-200 bg-white shadow-sm'
                                         }`}>

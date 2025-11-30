@@ -1,8 +1,9 @@
-// components/ConnectionRequests.jsx
 import React, { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot, doc, updateDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { useAuth } from '../hooks/useAuth';
+import Loading from './Loading';
+
 
 export default function ConnectionRequests() {
     const [requests, setRequests] = useState([]);
@@ -93,14 +94,7 @@ export default function ConnectionRequests() {
     };
 
     if (loading) {
-        return (
-            <div className="p-6">
-                <h1 className="text-2xl font-bold mb-6">Connection Requests</h1>
-                <div className="flex justify-center items-center h-32">
-                    <div className="text-lg">Loading requests...</div>
-                </div>
-            </div>
-        );
+        return <Loading />;
     }
 
     return (

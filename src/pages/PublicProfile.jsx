@@ -25,6 +25,7 @@ import {
     Edit,
     LogIn
 } from 'lucide-react';
+import Loading from '../components/Loading';
 
 export default function PublicProfile() {
     const { userId } = useParams();
@@ -35,7 +36,6 @@ export default function PublicProfile() {
     const [existingConnection, setExistingConnection] = useState(null);
     const [sendingRequest, setSendingRequest] = useState(false);
 
-    // Check if user is viewing their own profile
     const isOwnProfile = currentUser && userId === currentUser.uid;
 
     useEffect(() => {
@@ -58,7 +58,6 @@ export default function PublicProfile() {
             const userData = { id: snap.id, ...snap.data() };
             setProfileUser(userData);
 
-            // Only check for existing connection if user is logged in AND it's NOT their own profile
             if (currentUser && !isOwnProfile) {
                 await checkExistingConnection(userId);
             }
@@ -73,7 +72,6 @@ export default function PublicProfile() {
         try {
             const connectionsRef = collection(db, 'connections');
 
-            // Check both scenarios: current user as sender AND as receiver
             const sentQuery = query(
                 connectionsRef,
                 where('from', '==', currentUser.uid),
@@ -91,21 +89,17 @@ export default function PublicProfile() {
                 getDocs(receivedQuery)
             ]);
 
-            // Prioritize accepted connections first, then pending
             let connection = null;
 
-            // Check received connections first (if someone sent you a request)
             if (!receivedSnapshot.empty) {
                 const receivedConnections = receivedSnapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data()
                 }));
-                // Find accepted connection first, then pending
                 connection = receivedConnections.find(conn => conn.status === 'accepted') ||
                     receivedConnections.find(conn => conn.status === 'pending');
             }
 
-            // If no received connection found, check sent connections
             if (!connection && !sentSnapshot.empty) {
                 const sentConnections = sentSnapshot.docs.map(doc => ({
                     id: doc.id,
@@ -129,7 +123,6 @@ export default function PublicProfile() {
             return;
         }
 
-        // Check if connection already exists before sending
         if (existingConnection) {
             if (existingConnection.status === 'accepted') {
                 alert('You are already connected with this user!');
@@ -204,7 +197,7 @@ export default function PublicProfile() {
                 text: 'Skillmates',
                 icon: UserCheck,
                 style: 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:scale-105 transition-transform shadow-lg shadow-green-500/25',
-                action: () => navigate('/dashboard?tab=messages'),
+                action: () => navigate('/dashboard/messages'),
                 disabled: false
             }
         };
@@ -212,25 +205,8 @@ export default function PublicProfile() {
     };
 
     if (loading) {
-        return (
-            <>
-                <Header />
-                <div className="min-h-screen bg-white pt-32 pb-20">
-                    <div className="max-w-6xl mx-auto px-6">
-                        <div className="animate-pulse">
-                            <div className="h-8 bg-gray-200 rounded w-1/3 mb-6"></div>
-                            <div className="space-y-4">
-                                <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-                                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <Footer />
-            </>
-        );
+        return <Loading />;
     }
-
     if (!profileUser) {
         return (
             <>
@@ -310,7 +286,7 @@ export default function PublicProfile() {
                                     {/* Only show message button if user is logged in and already connected */}
                                     {currentUser && existingConnection?.status === 'accepted' && (
                                         <button
-                                            onClick={() => navigate('/dashboard?tab=messages')}
+                                            onClick={() => navigate('/dashboard/messages')}
                                             className="flex items-center gap-3 border border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-50 transition-all"
                                         >
                                             <MessageCircle className="w-5 h-5" />

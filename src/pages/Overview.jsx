@@ -1,9 +1,10 @@
-// pages/Dashboard/Overview.jsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/config';
+import Loading from '../components/Loading';
+
 
 export default function Overview() {
   const { user } = useAuth();
@@ -24,7 +25,6 @@ export default function Overview() {
     if (!user) return;
 
     try {
-      // Fetch connections count
       const connectionsRef = collection(db, 'connections');
       const acceptedConnectionsQuery = query(
         connectionsRef,
@@ -34,7 +34,6 @@ export default function Overview() {
       const acceptedConnectionsSnapshot = await getDocs(acceptedConnectionsQuery);
       const acceptedConnectionsCount = acceptedConnectionsSnapshot.size;
 
-      // Also count connections where current user is the receiver
       const receivedConnectionsQuery = query(
         connectionsRef,
         where('status', '==', 'accepted'),
@@ -45,7 +44,6 @@ export default function Overview() {
 
       const totalConnections = acceptedConnectionsCount + receivedConnectionsCount;
 
-      // Fetch pending requests count
       const pendingRequestsQuery = query(
         connectionsRef,
         where('status', '==', 'pending'),
@@ -54,7 +52,6 @@ export default function Overview() {
       const pendingRequestsSnapshot = await getDocs(pendingRequestsQuery);
       const pendingRequestsCount = pendingRequestsSnapshot.size;
 
-      // Fetch messages count (count unique chats)
       const chatsRef = collection(db, 'chats');
       const chatsQuery = query(
         chatsRef,
@@ -76,32 +73,26 @@ export default function Overview() {
   };
 
   if (loading) {
-    return (
-      <div className="p-8">
-        <div className="flex justify-center items-center h-32">
-          <div className="text-lg">Loading dashboard...</div>
-        </div>
-      </div>
-    );
+    return <Loading />;
   }
 
   return (
     <div className="p-8 space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
-          { 
-            title: 'Connections', 
-            value: stats.connections, 
-            change: 'Your skillmates' 
+          {
+            title: 'Connections',
+            value: stats.connections,
+            change: 'Your skillmates'
           },
-          { 
-            title: 'Messages', 
-            value: stats.messages, 
-            change: 'Active conversations' 
+          {
+            title: 'Messages',
+            value: stats.messages,
+            change: 'Active conversations'
           },
-          { 
-            title: 'Pending Requests', 
-            value: stats.pendingRequests, 
+          {
+            title: 'Pending Requests',
+            value: stats.pendingRequests,
             change: stats.pendingRequests > 0 ? 'Need attention' : 'All caught up'
           },
         ].map((stat, index) => (
@@ -122,7 +113,7 @@ export default function Overview() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Link
           to="/dashboard/discover"
-          className="bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-xl p-6 text-white cursor-pointer hover:scale-105 transition-transform block"
+          className="bg-linear-to-r from-yellow-400 to-yellow-500 rounded-xl p-6 text-white cursor-pointer block"
         >
           <h3 className="text-xl font-bold mb-2">Find People</h3>
           <p className="mb-4 opacity-90">Discover and connect with learners and teachers</p>
@@ -130,10 +121,10 @@ export default function Overview() {
             Explore People
           </div>
         </Link>
-        
+
         <Link
           to="/dashboard/messages"
-          className="bg-gradient-to-r from-gray-900 to-black rounded-xl p-6 text-white cursor-pointer hover:scale-105 transition-transform block"
+          className="bg-linear-to-r from-gray-900 to-black rounded-xl p-6 text-white cursor-pointer block"
         >
           <h3 className="text-xl font-bold mb-2">Your Messages</h3>
           <p className="mb-4 opacity-90">Continue your conversations</p>

@@ -52,16 +52,15 @@ export default function DashboardHeader() {
                         <h1 className="text-2xl font-bold text-gray-900">{getPageTitle()}</h1>
                     </div>
 
-                    {/* User Menu */}
                     <div className="relative" ref={userMenuRef}>
                         <button
                             onClick={() => setShowUserMenu(!showUserMenu)}
-                            className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+                            className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
                         >
                             <div className="relative">
                                 <div className="w-3 h-3 bg-green-400 rounded-full absolute -top-1 -right-1 border-2 border-white"></div>
-                                <div className="w-10 h-10 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full flex items-center justify-center text-white font-bold">
-                                    {user.username?.charAt(0).toUpperCase() || 'U'}
+                                <div className="w-10 h-10 bg-linear-to-r from-yellow-400 to-yellow-500 rounded-full flex items-center justify-center text-white font-bold">
+                                    {(user.name?.[0] || user.email?.[0] || "U").toUpperCase()}
                                 </div>
                             </div>
                             <div className="text-left hidden md:block">
@@ -71,16 +70,15 @@ export default function DashboardHeader() {
                             <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
                         </button>
 
-                        {/* Dropdown Menu */}
                         {showUserMenu && (
-                            <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                            <div className="absolute right-0 top-full mt-2 w-58 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 cursor-pointer">
                                 <Link
                                     to={`/profile/${user.uid}`}
                                     className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
                                     onClick={() => setShowUserMenu(false)}
                                 >
                                     <User className="w-4 h-4" />
-                                    <span>My Profile</span>
+                                    <span>{user.name || "No Name"}</span>
                                 </Link>
                                 <Link
                                     to="/dashboard/profile"
